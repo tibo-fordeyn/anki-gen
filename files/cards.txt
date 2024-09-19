@@ -1,0 +1,17 @@
+Definitie; Druk in een fluidum
+||||||||||
+\centering
+\includegraphics[width=\linewidth/4]{/home/dyntif/school/eerste-bach/herrie/natuurkunde/images/screenshot_2024-06-28_19-53-14.png}
+\[P &= \frac{F}{A} &= \frac{mg}{A} &= \frac{\rho Vg}{A}.\]
+\[\implies P &= \rho gh.\]
+We gebruiken $P &= \frac{F}{A}$ en relaties tussen kracht en massa, massa en dichtheid, om tot deze relatie te komen
+----------
+Vraag; Wat is de definitie van momentum?
+||||||||||
+Momentum is het product van massa en snelheid:
+\[ p = mv \]
+----------
+Def; Dit is een vraag?
+||||||||||
+Dit is mijn antwoord op de vraaag
+----------
