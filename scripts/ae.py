@@ -1,23 +1,37 @@
+#!/usr/bin/env python3
+
+import sys
 import subprocess
 import requests
 import json
 
-# Functie om alle decks op te halen via AnkiConnect
 def get_all_decks():
+    '''
+    Getting all decks from Anki
+    '''
     url = 'http://localhost:8765'
     headers = {'Content-Type': 'application/json'}
-    
+
     payload = {
         "action": "deckNames",
         "version": 6
     }
-    
-    response = requests.post(url, headers=headers, data=json.dumps(payload))
-    decks = response.json().get('result', [])
-    return decks
 
-# Functie om alle notes in een deck te vinden en te verwijderen
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
+        response.raise_for_status()
+        decks = response.json().get('result', [])
+        return decks
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching decks: {e}")
+        subprocess.run(['notify-send', 'You do not have an anki instance running!!'])
+        sys.exit(1)
+
+
 def get_note_ids_from_deck(deck_name):
+    '''
+    Get cards
+    '''
     url = 'http://localhost:8765'
     headers = {'Content-Type': 'application/json'}
     
@@ -34,6 +48,9 @@ def get_note_ids_from_deck(deck_name):
     return note_ids
 
 def delete_notes(note_ids):
+    '''
+    Delete cards
+    '''
     url = 'http://localhost:8765'
     headers = {'Content-Type': 'application/json'}
     
@@ -48,8 +65,10 @@ def delete_notes(note_ids):
     response = requests.post(url, headers=headers, data=json.dumps(payload))
     return response.json()
 
-# Functie om dmenu te gebruiken om een deck te selecteren
 def select_deck_with_dmenu(decks):
+    '''
+    Dmenu selection
+    '''
     dmenu_input = "\n".join(decks).encode('utf-8')
     result = subprocess.run(['dmenu', '-l', '10', '-p', 'Select a deck to empty'], input=dmenu_input, stdout=subprocess.PIPE)
     selected_deck = result.stdout.decode('utf-8').strip()
@@ -57,27 +76,31 @@ def select_deck_with_dmenu(decks):
 
 # Hoofdprogramma
 def main():
-    # Haal alle bestaande decks op
     decks = get_all_decks()
     
     if not decks:
-        print("Geen decks gevonden.")
+        print("No decks found.")
+        subprocess.run(['notify-send', "No decks found!"])
         return
     
     # Selecteer een deck om leeg te maken
     selected_deck = select_deck_with_dmenu(decks)
     
     if not selected_deck:
-        print("Geen deck geselecteerd, bewerking geannuleerd.")
+        print("No deck selected.")
+        subprocess.run(['notify-send', "No deck selected!"])
         return
     
     # Verwijder alle kaarten in het geselecteerde deck
     note_ids = get_note_ids_from_deck(selected_deck)
     if note_ids:
         delete_notes(note_ids)
-        print(f"Alle kaarten verwijderd uit deck: {selected_deck}")
+        print(f"Cards deleted: {selected_deck}")
+        subprocess.run(['notify-send', f"Cards deleted: {selected_deck}"])
     else:
-        print(f"Geen kaarten om te verwijderen in deck: {selected_deck}")
+        print(f"No cards to delete: {selected_deck}")
+        subprocess.run(['notify-send', f"No cards to delete: {selected_deck}"])
+
 
 if __name__ == "__main__":
     main()

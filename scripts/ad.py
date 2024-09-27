@@ -1,23 +1,37 @@
+#!/usr/bin/env python3
+
+import sys
 import subprocess
 import requests
 import json
 
-# Functie om alle decks op te halen via AnkiConnect
 def get_all_decks():
+    '''
+    Getting all decks from Anki
+    '''
     url = 'http://localhost:8765'
     headers = {'Content-Type': 'application/json'}
-    
+
     payload = {
         "action": "deckNames",
         "version": 6
     }
-    
-    response = requests.post(url, headers=headers, data=json.dumps(payload))
-    decks = response.json().get('result', [])
-    return decks
 
-# Functie om alle kaarten in een deck te vinden
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
+        response.raise_for_status()
+        decks = response.json().get('result', [])
+        return decks
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching decks: {e}")
+        subprocess.run(['notify-send', 'You do not have an anki instance running!!'])
+        sys.exit(1)
+
+
 def get_note_ids_from_deck(deck_name):
+    '''
+    Get al cards from a deck
+    '''
     url = 'http://localhost:8765'
     headers = {'Content-Type': 'application/json'}
     
@@ -33,12 +47,13 @@ def get_note_ids_from_deck(deck_name):
     note_ids = response.json().get('result', [])
     return note_ids
 
-# Functie om een deck te verwijderen, inclusief de kaarten
 def delete_deck(deck_name):
+    '''
+    Deletes deck and it's cards
+    '''
     note_ids = get_note_ids_from_deck(deck_name)
     
     if note_ids:
-        # Verwijder de kaarten eerst
         delete_notes_payload = {
             "action": "deleteNotes",
             "version": 6,
@@ -48,59 +63,65 @@ def delete_deck(deck_name):
         }
         requests.post('http://localhost:8765', json=delete_notes_payload)
     
-    # Verwijder vervolgens het deck
     delete_deck_payload = {
         "action": "deleteDecks",
         "version": 6,
         "params": {
             "decks": [deck_name],
-            "cardsToo": True  # Zorgt ervoor dat de kaarten worden verwijderd
+            "cardsToo": True  
         }
     }
     
     response = requests.post('http://localhost:8765', json=delete_deck_payload)
     return response.json()
 
-# Functie om dmenu te gebruiken om een deck te selecteren
 def select_deck_with_dmenu(decks):
+    '''
+    Using dmenu to select deck
+    '''
     dmenu_input = "\n".join(decks).encode('utf-8')
     result = subprocess.run(['dmenu', '-l', '10', '-p', 'Select a deck to delete'], input=dmenu_input, stdout=subprocess.PIPE)
     selected_deck = result.stdout.decode('utf-8').strip()
     return selected_deck
 
-# Functie om bevestiging te vragen voor verwijdering
 def confirm_deletion():
-    result = subprocess.run(['dmenu', '-p', 'Type SURE to confirm:'], input=''.encode('utf-8'), stdout=subprocess.PIPE)
+    '''
+    Conformation
+    '''
+    options = "YES              \nNO".encode('utf-8')
+    prompt = "Are you sure you want to delete this deck? "
+    result = subprocess.run(['dmenu', '-p', prompt], input=options, stdout=subprocess.PIPE)
     confirmation = result.stdout.decode('utf-8').strip()
-    return confirmation == "SURE"
+    return confirmation == "YES"
 
-# Hoofdprogramma
+
 def main():
-    # Haal alle bestaande decks op
     decks = get_all_decks()
     
     if not decks:
-        print("Geen decks gevonden.")
+        print("No decks found.")
+        subprocess.run(['notify-send', 'No decks found'])
         return
     
-    # Selecteer een deck om te verwijderen
     selected_deck = select_deck_with_dmenu(decks)
     
     if not selected_deck:
-        print("Geen deck geselecteerd, bewerking geannuleerd.")
+        print("No deck selected.")
+        subprocess.run(['notify-send', 'No deck selected'])
         return
     
-    # Bevestiging voordat het deck wordt verwijderd
     if not confirm_deletion():
-        print("Verwijdering geannuleerd.")
+        print("Didn't delete deck.")
+        subprocess.run(['notify-send', "Didn't delete deck"])
         return
     
-    # Verwijder het geselecteerde deck, inclusief de kaarten
     delete_response = delete_deck(selected_deck)
     if delete_response.get('error'):
-        print(f"Fout bij het verwijderen van deck: {delete_response['error']}")
+        print(f"Error: {delete_response['error']}")
+        subprocess.run(['notify-send', f"Error deleting deck: {delete_response['error']}"])
     else:
-        print(f"Deck '{selected_deck}' succesvol verwijderd.")
+        print(f"Deck '{selected_deck}' deleted.")
+        subprocess.run(['notify-send', 'Deck was deleted'])
 
 if __name__ == "__main__":
     main()

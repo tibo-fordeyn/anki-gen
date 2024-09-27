@@ -1,17 +1,33 @@
-Definitie; Druk in een fluidum
+Definition; Definition box
+A saddle point $p_{0}  $ can be defined as
 ||||||||||
-\centering
-\includegraphics[width=\linewidth/4]{/home/dyntif/school/eerste-bach/herrie/natuurkunde/images/screenshot_2024-06-28_19-53-14.png}
-\[P &= \frac{F}{A} &= \frac{mg}{A} &= \frac{\rho Vg}{A}.\]
-\[\implies P &= \rho gh.\]
-We gebruiken $P &= \frac{F}{A}$ en relaties tussen kracht en massa, massa en dichtheid, om tot deze relatie te komen
+\[
+	\forall \epsilon > 0: \exists p_{1} ,p_{2} \in N(p_{0} , \epsilon ): f(p_{0}  ) > f(p_{1}  ) \wedge f(p_{0}  ) < f(p_{2}  )       
+	.\]  
+	For a function f
 ----------
-Vraag; Wat is de definitie van momentum?
+theorem; Lijnintegraal in een conservatief veld
+Zij $f\in C'(D) $ met D een open gebied in $\mathbb{R} ^3 $. Stel $\vec{p_{0}  } \wedge \vec{p_{1}  }    $ twee willekeurige punten van D. Zij C een kromme met $\vec{p_{0}  }  $ als eindpunt. Dan geldt
+
+		\[
+		\int _{C} \text{grad } f &= f(\vec{p_{1}  }  )-f(\vec{p_{0}  }  )       
+		.\]
 ||||||||||
-Momentum is het product van massa en snelheid:
-\[ p = mv \]
-----------
-Def; Dit is een vraag?
-||||||||||
-Dit is mijn antwoord op de vraaag
+Laat $\vec{\gamma } (t)  &= (f_{1} (t),f_{2} (t),f_{3} (t)      ), a \le t \le b  $ een parametrisatie van C.
+
+	\[
+	\vec{\gamma } (a)&= \vec{p_{0}  } \wedge \vec{\gamma } (b) &= \vec{p_{1}  }        
+	.\]  
+	\[
+	\int _{C} \text{grad }f&= \int_{a}^{b} \left( \frac{\partial f}{\partial x} (f_{1} ,f_{2} ,f_{3}    )f'_{1}       +\frac{\partial f}{\partial y}        (f_{1} ,f_{2} ,f_{3}    )f'_{2} +\frac{\partial f}{\partial z} (f_{1} ,f_{2} ,f_{3}    )f'_{3}      \right) dt
+	.\]  
+	\[
+	\iff \int_{a}^{b} \frac{d}{dt}f(f_{1} ,f_{2} ,f_{3}    )dt   
+	.\]  
+	\[
+	\iff f(f_{1} (b),f_{2} (b),f_{3} (b)      )-f(f_{1} (a),f_{2} (a),f_{3} (a)      )  
+	.\]  
+	\[
+	f(\vec{\gamma } (a)  ) - f(\vec{\gamma } (b)  ) 
+	.\]
 ----------
