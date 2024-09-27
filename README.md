@@ -1,6 +1,5 @@
 # anki-gen
 
-## Idea
 This project is complimentary to my [blog post](https://fordeyn.tech), in which I discuss how to use it effectively with Vim and LaTeX. The main idea is to easily generate Anki flashcards from LaTeX files using custom-defined commands and parsing structures. 
 
 ## Prereqs
@@ -13,5 +12,6 @@ Clone the repository into `~/.local/share/anki-gen`:
 
 ```bash
 git clone <repo-url> ~/.local/share/anki-gen
+```
 
 For more detailed info, visit the blog. 
