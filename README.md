@@ -11,7 +11,7 @@ This project is complimentary to my [blog post](https://fordeyn.tech), in which 
 Clone the repository into `~/.local/share/anki-gen`:
 
 ```bash
-git clone <repo-url> ~/.local/share/anki-gen
+git clone https://github.com/tibo-fordeyn/anki-gen.git ~/.local/share/anki-gen
 ```
 
 For more detailed info, visit the blog. 
