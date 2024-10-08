@@ -1,33 +1,99 @@
-Definition; Definition box
-A saddle point $p_{0}  $ can be defined as
+Definitie; Het interpolatiecriterium
+Kies $N$ punten $x_{j} \in \left[ a,b \right]   $  en eis dat $g(x_{j}  )= f(x_{j}  )  , j =,1,\ldots ,N $
+||||||||||
+Met andere woorden er wordt in essentie enkel geëist dat de doelfunctie in enkele punten exact samenvalt. Dan wordt een veelterm bepaald.
+	
+lineair stelsel;
+\[
+\sum_{i=1}^{n} c_{i} g_{i} (x_{j}  )= f(x_{j}  )     , j=1,2,\ldots ,N
+.\]  
+\[
+\begin{pmatrix}
+	g_{1} (x_{1}  )   &g_{2} (x_{1}  )    & \ldots  & g_{N} (x_{1}  )  \\
+	g_{1} (x_{2}  )   & g_{2} (x_{2}  )   & \ldots  & g_{N} (x_{2}  )  \\
+	\vdots  & \vdots  & \vdots  & \vdots  \\
+	g_{1} (x_{N}  )   & g_{2} (x_{N}  )   & \ldots  & g_{n} (x_{N}  )  
+\end{pmatrix} \begin{pmatrix}
+	c_{1}    \\
+	c_{2}    \\
+	\vdots   \\
+	c_{N}    
+\end{pmatrix} = \begin{pmatrix}
+	f(x_{1}  )   \\
+	f(x_{2}  )   \\
+	\vdots   \\
+	f(x_{N}  )   
+\end{pmatrix} 
+.\]  
+kwaliteit hangt af van keuzes interpolatiepunten, veelterminterpolatie geeft grote fouten.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth/3]{"/home/dyntif/school/tweede-bach/eerste-sem/analyse-III/images/screenshot_2024-10-08_15-40-06_20241008154014.png"}
+\end{figure}
+----------
+Definitie; Orthogonaliteit van functies
+Twee functies $f,g\in \mathbb{R} $ zijn orthogonaal op $\left[ a,b \right]  $ als
 ||||||||||
 \[
-	\forall \epsilon > 0: \exists p_{1} ,p_{2} \in N(p_{0} , \epsilon ): f(p_{0}  ) > f(p_{1}  ) \wedge f(p_{0}  ) < f(p_{2}  )       
-	.\]  
-	For a function f
+\int_{a}^{b} f(x)g(x)dx    
+.\]
 ----------
-theorem; Lijnintegraal in een conservatief veld
-Zij $f\in C'(D) $ met D een open gebied in $\mathbb{R} ^3 $. Stel $\vec{p_{0}  } \wedge \vec{p_{1}  }    $ twee willekeurige punten van D. Zij C een kromme met $\vec{p_{0}  }  $ als eindpunt. Dan geldt
-
-		\[
-		\int _{C} \text{grad } f &= f(\vec{p_{1}  }  )-f(\vec{p_{0}  }  )       
-		.\]
+Definitie; Orthogonaal tov gewichtsfunctie
+Twee reele functies $f,g$ zijn orthogonaal op $\left[ a,b \right]  $ tov gewichtsfunctie w, $w(x)>0 $ voor $x\in (a,b) $
 ||||||||||
-Laat $\vec{\gamma } (t)  &= (f_{1} (t),f_{2} (t),f_{3} (t)      ), a \le t \le b  $ een parametrisatie van C.
-
+\[
+\int_{a}^{b} w(x) f(x)g(x)dx=0    
+.\]
+----------
+Voorbeeld; benaderen
+We gaan een functie f benaderen op een interval $\left[ a,b \right]  $ door een lineaire combinatie van basisfuncties
 	\[
-	\vec{\gamma } (a)&= \vec{p_{0}  } \wedge \vec{\gamma } (b) &= \vec{p_{1}  }        
+	f(x)\approx  \sum_{i=1}^{N} c_{i} g_{i} (x)     
 	.\]  
 	\[
-	\int _{C} \text{grad }f&= \int_{a}^{b} \left( \frac{\partial f}{\partial x} (f_{1} ,f_{2} ,f_{3}    )f'_{1}       +\frac{\partial f}{\partial y}        (f_{1} ,f_{2} ,f_{3}    )f'_{2} +\frac{\partial f}{\partial z} (f_{1} ,f_{2} ,f_{3}    )f'_{3}      \right) dt
+	\begin{cases}
+		g_{1}   \\
+		g_{2}   \\
+		\vdots \\
+	\end{cases} 
 	.\]  
+	We gaan een fout karakteriseren met een kleinste kwadratenfunctie met een gewicht $w(x) $ 
 	\[
-	\iff \int_{a}^{b} \frac{d}{dt}f(f_{1} ,f_{2} ,f_{3}    )dt   
+	\int_{a}^{b} w(x)\left(f(x)-g(x)   \right) ^2 dx    
 	.\]  
-	\[
-	\iff f(f_{1} (b),f_{2} (b),f_{3} (b)      )-f(f_{1} (a),f_{2} (a),f_{3} (a)      )  
-	.\]  
-	\[
-	f(\vec{\gamma } (a)  ) - f(\vec{\gamma } (b)  ) 
-	.\]
+	dit willen we minimaliseren
+||||||||||
+er zijn voorwaarden mogelijk voor een perfecte match. Stel dat de basisfuncties \textbf{orthogonaal zijn tov elkaar op $\left[ a,b \right]  $ tov $w(x) $. }  
+In dat geval is de uitdrukking voor optimale coefficienten eenvoudig (de te minimaliseren formule.) 
+\[
+c_{i} = \frac{\int_{a}^{b} w(x)f(x)g_{i} (x)dx }{  \int_{a}^{b} w(x) \left(g_{i} (x)  \right) ^2 dx          }
+.\]
+----------
+Voorbeeld; benaderen
+stel $w(x)=1 $ en $\left[ a,b \right] = \left[ -\pi ,\pi  \right]   $  we krijgen trigonometrische orthogonaliteit
+||||||||||
+\[
+\int_{-\pi }^{\pi } \cos{\big( kx \big)} \cos{\big( lx \big)} dx= \begin{cases}
+	0, k\neq l \\
+	\pi ,k=l\neq 0 \\
+	2\pi ,k=l=0
+\end{cases}     
+.\]  
+\[
+\int_{-\pi }^{\pi } \cos{\big( kx \big)} \sin{\big( lx \big)} dx=0    
+.\]  
+\[
+\int_{-\pi }^{\pi } \sin{\big( kx \big)} \sin{\big( lx \big)} = \begin{cases}
+	0,k\neq l,k=l=0 \\
+	\pi ,k=l\neq 0 \\
+\end{cases}     
+.\]
+----------
+Definitie; Trigonometrische veelterm
+Gedefinieerd als
+||||||||||
+\[
+g(x)= a_{0} +\sum_{k=1}^{n} \left(a_{k} \cos{\big( kx \big)} +b_{k} \sin{\big( kx \big)}     \right)     
+.\]
 ----------
