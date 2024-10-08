@@ -2,6 +2,7 @@
 import sys
 import re
 import os
+import shutil
 
 def main():
     if len(sys.argv) != 2:
@@ -13,9 +14,6 @@ def main():
 
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
-
-    # Verwijder alleen comments aan het einde van regels, behoud newlines en volledige commentaarregels
-    # content = re.sub(r'%.*', '', content)  # Deze regel wordt verwijderd omdat we de comments anders gaan verwerken
 
     # DEFINEER JE KADER COMMANDO'S HIER
     kader_commands = {
@@ -111,10 +109,15 @@ def main():
                     current_kader_type, current_title = kader_stack[-1]
                 else:
                     current_kader_type, current_title = 'qs', '/'
-                # Voeg de kaart toe
                 # Vervang inline wiskunde in vraag en antwoord
                 question_processed = replace_inline_math(current_question)
                 answer_processed = replace_inline_math(answer)
+
+                # Verwerk afbeeldingen in vraag en antwoord
+                question_processed = process_images(question_processed)
+                answer_processed = process_images(answer_processed)
+
+                # Voeg de kaart toe
                 card = {
                     'type': current_kader_type,
                     'title': current_title,
@@ -163,6 +166,31 @@ def replace_inline_math(text):
             else:
                 text_list[pos] = '\\)'
         return ''.join(text_list)
+
+def process_images(text):
+    # Zoek naar \begin{figure} ... \end{figure} blokken
+    figure_pattern = re.compile(r'\\begin\{figure\}.*?\\end\{figure\}', re.DOTALL)
+    matches = figure_pattern.finditer(text)
+    for match in matches:
+        figure_block = match.group()
+        # Zoek naar pad tussen dubbele aanhalingstekens in de figure omgeving
+        path_match = re.search(r'"([^"]+)"', figure_block)
+        if path_match:
+            image_path = path_match.group(1)
+            # Kopieer de afbeelding naar de Anki media map
+            filename = os.path.basename(image_path)
+            anki_media_folder = os.path.expanduser('~/.local/share/Anki2/Gebruiker 1/collection.media/')
+            destination_path = os.path.join(anki_media_folder, filename)
+            if not os.path.exists(destination_path):
+                try:
+                    shutil.copy(image_path, destination_path)
+                except Exception as e:
+                    print(f"Fout bij kopiëren van afbeelding {image_path}: {e}")
+            # Vervang de figure omgeving door HTML code
+            img_tag = f'<img src="{filename}">'
+            # Vervang in de tekst
+            text = text.replace(figure_block, img_tag)
+    return text
 
 if __name__ == '__main__':
     main()
