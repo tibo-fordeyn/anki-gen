@@ -112,11 +112,14 @@ def main():
                 else:
                     current_kader_type, current_title = 'qs', '/'
                 # Voeg de kaart toe
+                # Vervang inline wiskunde in vraag en antwoord
+                question_processed = replace_inline_math(current_question)
+                answer_processed = replace_inline_math(answer)
                 card = {
                     'type': current_kader_type,
                     'title': current_title,
-                    'question': current_question,
-                    'answer': answer,
+                    'question': question_processed,
+                    'answer': answer_processed,
                 }
                 cards.append(card)
             current_question = None
@@ -145,6 +148,21 @@ def extract_brace_content(text, index):
         index += 1
     content = text[start:index-1]  # Verwijder de laatste '}'
     return content, index
+
+def replace_inline_math(text):
+    dollar_positions = [i for i, c in enumerate(text) if c == '$']
+    if len(dollar_positions) % 2 != 0:
+        # Oneven aantal '$', laat het zoals het is of geef een waarschuwing
+        return text
+    else:
+        # Vervang $ met \( en \) afwisselend
+        text_list = list(text)
+        for idx, pos in enumerate(dollar_positions):
+            if idx % 2 == 0:
+                text_list[pos] = '\\('
+            else:
+                text_list[pos] = '\\)'
+        return ''.join(text_list)
 
 if __name__ == '__main__':
     main()

@@ -1,5 +1,5 @@
 Definitie; Het interpolatiecriterium
-Kies $N$ punten $x_{j} \in \left[ a,b \right]   $  en eis dat $g(x_{j}  )= f(x_{j}  )  , j =,1,\ldots ,N $
+Kies \(N\) punten \(x_{j} \in \left[ a,b \right]   \)  en eis dat \(g(x_{j}  )= f(x_{j}  )  , j =,1,\ldots ,N \)
 ||||||||||
 Met andere woorden er wordt in essentie enkel geëist dat de doelfunctie in enkele punten exact samenvalt. Dan wordt een veelterm bepaald.
 	
@@ -33,21 +33,21 @@ kwaliteit hangt af van keuzes interpolatiepunten, veelterminterpolatie geeft gro
 \end{figure}
 ----------
 Definitie; Orthogonaliteit van functies
-Twee functies $f,g\in \mathbb{R} $ zijn orthogonaal op $\left[ a,b \right]  $ als
+Twee functies \(f,g\in \mathbb{R} \) zijn orthogonaal op \(\left[ a,b \right]  \) als
 ||||||||||
 \[
 \int_{a}^{b} f(x)g(x)dx    
 .\]
 ----------
 Definitie; Orthogonaal tov gewichtsfunctie
-Twee reele functies $f,g$ zijn orthogonaal op $\left[ a,b \right]  $ tov gewichtsfunctie w, $w(x)>0 $ voor $x\in (a,b) $
+Twee reele functies \(f,g\) zijn orthogonaal op \(\left[ a,b \right]  \) tov gewichtsfunctie w, \(w(x)>0 \) voor \(x\in (a,b) \)
 ||||||||||
 \[
 \int_{a}^{b} w(x) f(x)g(x)dx=0    
 .\]
 ----------
 Voorbeeld; benaderen
-We gaan een functie f benaderen op een interval $\left[ a,b \right]  $ door een lineaire combinatie van basisfuncties
+We gaan een functie f benaderen op een interval \(\left[ a,b \right]  \) door een lineaire combinatie van basisfuncties
 	\[
 	f(x)\approx  \sum_{i=1}^{N} c_{i} g_{i} (x)     
 	.\]  
@@ -58,20 +58,20 @@ We gaan een functie f benaderen op een interval $\left[ a,b \right]  $ door een 
 		\vdots \\
 	\end{cases} 
 	.\]  
-	We gaan een fout karakteriseren met een kleinste kwadratenfunctie met een gewicht $w(x) $ 
+	We gaan een fout karakteriseren met een kleinste kwadratenfunctie met een gewicht \(w(x) \) 
 	\[
 	\int_{a}^{b} w(x)\left(f(x)-g(x)   \right) ^2 dx    
 	.\]  
 	dit willen we minimaliseren
 ||||||||||
-er zijn voorwaarden mogelijk voor een perfecte match. Stel dat de basisfuncties \textbf{orthogonaal zijn tov elkaar op $\left[ a,b \right]  $ tov $w(x) $. }  
+er zijn voorwaarden mogelijk voor een perfecte match. Stel dat de basisfuncties \textbf{orthogonaal zijn tov elkaar op \(\left[ a,b \right]  \) tov \(w(x) \). }  
 In dat geval is de uitdrukking voor optimale coefficienten eenvoudig (de te minimaliseren formule.) 
 \[
 c_{i} = \frac{\int_{a}^{b} w(x)f(x)g_{i} (x)dx }{  \int_{a}^{b} w(x) \left(g_{i} (x)  \right) ^2 dx          }
 .\]
 ----------
 Voorbeeld; benaderen
-stel $w(x)=1 $ en $\left[ a,b \right] = \left[ -\pi ,\pi  \right]   $  we krijgen trigonometrische orthogonaliteit
+stel \(w(x)=1 \) en \(\left[ a,b \right] = \left[ -\pi ,\pi  \right]   \)  we krijgen trigonometrische orthogonaliteit
 ||||||||||
 \[
 \int_{-\pi }^{\pi } \cos{\big( kx \big)} \cos{\big( lx \big)} dx= \begin{cases}
