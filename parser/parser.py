@@ -78,6 +78,8 @@ def main():
             kader_type = kader_commands[kader_cmd]
             title, idx = extract_brace_content(content, idx)
             title = title.strip()
+            # Verwerk inline wiskunde in de titel
+            title = replace_inline_math(title)
             kader_stack.append((kader_type, title))
         elif cmd_type == 'akq':
             # Verwachten we een vraag?
@@ -109,7 +111,7 @@ def main():
                     current_kader_type, current_title = kader_stack[-1]
                 else:
                     current_kader_type, current_title = 'qs', '/'
-                # Vervang inline wiskunde in vraag en antwoord
+                # Verwerk inline wiskunde in vraag en antwoord
                 question_processed = replace_inline_math(current_question)
                 answer_processed = replace_inline_math(answer)
 
@@ -153,21 +155,18 @@ def extract_brace_content(text, index):
     return content, index
 
 def replace_inline_math(text):
-    dollar_positions = [i for i, c in enumerate(text) if c == '$']
-    if len(dollar_positions) % 2 != 0:
-        # Oneven aantal '$', laat het zoals het is of geef een waarschuwing
-        return text
-    else:
-        # Vervang $ met \( en \) afwisselend
-        text_list = list(text)
-        for idx, pos in enumerate(dollar_positions):
-            if idx % 2 == 0:
-                text_list[pos] = '\\('
-            else:
-                text_list[pos] = '\\)'
-        return ''.join(text_list)
+    # Vervang $...$ door \( ... \) voor inline wiskunde
+    text = re.sub(r'\$(.+?)\$', r'\\(\1\\)', text)
+    return text
 
 def process_images(text):
+    # Verwerk \begin{figure} ... \end{figure} blokken
+    text = process_figure_environments(text)
+    # Verwerk \incfig{...} commando's
+    text = process_incfig_commands(text)
+    return text
+
+def process_figure_environments(text):
     # Zoek naar \begin{figure} ... \end{figure} blokken
     figure_pattern = re.compile(r'\\begin\{figure\}.*?\\end\{figure\}', re.DOTALL)
     matches = figure_pattern.finditer(text)
@@ -179,6 +178,7 @@ def process_images(text):
             image_path = path_match.group(1)
             # Kopieer de afbeelding naar de Anki media map
             filename = os.path.basename(image_path)
+            filename = sanitize_filename(filename)
             anki_media_folder = os.path.expanduser('~/.local/share/Anki2/Gebruiker 1/collection.media/')
             destination_path = os.path.join(anki_media_folder, filename)
             if not os.path.exists(destination_path):
@@ -187,10 +187,68 @@ def process_images(text):
                 except Exception as e:
                     print(f"Fout bij kopiëren van afbeelding {image_path}: {e}")
             # Vervang de figure omgeving door HTML code
-            img_tag = f'<img src="{filename}">'
+            # Voeg stijl toe om de afbeelding kleiner te maken
+            img_tag = f'<img src="{filename}" style="width:50%;">'  # Pas de breedte aan indien nodig
             # Vervang in de tekst
             text = text.replace(figure_block, img_tag)
     return text
+
+def process_incfig_commands(text):
+    # Zoek naar \incfig{...} commando's
+    incfig_pattern = re.compile(r'\\incfig\{([^}]+)\}')
+    matches = incfig_pattern.finditer(text)
+    for match in matches:
+        image_name = match.group(1).strip()
+        # Verwacht dat de afbeelding zich bevindt in './figures/' met extensie '.png'
+        # Pad naar de afbeelding
+        # images_dir = os.path.join(os.path.dirname(sys.argv[1]), 'figures')
+        images_dir = os.path.join('/home/dyntif/school/current-subject/nota/', 'figures')  # Pas dit pad aan indien nodig
+        # Probeer de afbeelding te vinden met extensie '.png' of '.pdf'
+        possible_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.pdf']
+        found_image = False
+        for ext in possible_extensions:
+            image_path = os.path.join(images_dir, image_name + ext)
+            if os.path.exists(image_path):
+                found_image = True
+                break  # We hebben de afbeelding gevonden
+        if found_image:
+            # Kopieer de afbeelding naar de Anki media map
+            filename = os.path.basename(image_path)
+            filename = sanitize_filename(filename)
+            anki_media_folder = os.path.expanduser('~/.local/share/Anki2/Gebruiker 1/collection.media/')
+            destination_path = os.path.join(anki_media_folder, filename)
+            if not os.path.exists(destination_path):
+                try:
+                    shutil.copy(image_path, destination_path)
+                except Exception as e:
+                    print(f"Fout bij kopiëren van afbeelding {image_path}: {e}")
+            # Controleer of het een pdf is en converteer naar png
+            if filename.lower().endswith('.pdf'):
+                png_filename = filename[:-4] + '.png'
+                png_destination_path = os.path.join(anki_media_folder, png_filename)
+                if not os.path.exists(png_destination_path):
+                    try:
+                        # Converteer pdf naar png
+                        from subprocess import run
+                        run(['convert', '-density', '300', image_path, '-quality', '90', png_destination_path])
+                        filename = png_filename
+                    except Exception as e:
+                        print(f"Fout bij converteren van pdf naar png voor {image_path}: {e}")
+                else:
+                    filename = png_filename
+            # Vervang het \incfig commando door een <img> tag
+            img_tag = f'<img src="{filename}" style="width:50%;">'  # Pas de breedte aan indien nodig
+            text = text.replace(match.group(), img_tag)
+        else:
+            print(f"Afbeelding {image_name} niet gevonden in {images_dir}")
+            # Vervang het \incfig commando door een placeholder
+            text = text.replace(match.group(), f'[Afbeelding {image_name} niet gevonden]')
+    return text
+
+def sanitize_filename(filename):
+    # Verwijder eventuele speciale tekens die Anki niet goed kan verwerken
+    filename = re.sub(r'[^\w\.\-]', '_', filename)
+    return filename
 
 if __name__ == '__main__':
     main()
