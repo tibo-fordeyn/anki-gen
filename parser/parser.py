@@ -5,6 +5,24 @@ import os
 import shutil
 from subprocess import run
 
+# DEFINEER JE KADER COMMANDO'S HIER
+kader_commands = {
+    'dfn': 'Definitie',
+    'prf': 'Bewijs',
+    'lmm': 'Lemma',
+    'cor': 'Corollarium',
+    'prop': 'Eigenschap',
+    'thm': 'Stelling',
+    'idea': 'Idee',
+    'clar': 'Verduidelijking',
+    'rem': 'Herinnering',
+    'add': 'Addendum',
+    'ex': 'Voorbeeld',
+    'qs': 'Vraag',
+    'exqs': 'Examenvraag',
+    'bsl': 'Besluit',
+}
+
 def main():
     if len(sys.argv) != 2:
         print("Gebruik: parser.py <input.tex>")
@@ -15,24 +33,6 @@ def main():
 
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
-
-    # DEFINEER JE KADER COMMANDO'S HIER
-    kader_commands = {
-        'dfn': 'Definitie',
-        'prf': 'Bewijs',
-        'lmm': 'Lemma',
-        'cor': 'Corollarium',
-        'prop': 'Eigenschap',
-        'thm': 'Stelling',
-        'idea': 'Idee',
-        'clar': 'Verduidelijking',
-        'rem': 'Herinnering',
-        'add': 'Addendum',
-        'ex': 'Voorbeeld',
-        'qs': 'Vraag',
-        'exqs': 'Examenvraag',
-        'bsl': 'Besluit',
-    }
 
     # Patronen voor commando's
     kader_pattern = re.compile(r'\\(' + '|'.join(kader_commands.keys()) + r')\s*\{')
@@ -70,8 +70,8 @@ def main():
             idx = next_match.end()
             continue
 
-        # Update index
-        idx = next_match.end()
+        # Update index naar het einde van het commando (\cmd{)
+        idx = next_match.end() - 1  # Ga naar de positie van de '{'
 
         # Krijg het kader type
         if cmd_type == 'kader':
@@ -79,10 +79,11 @@ def main():
             kader_type = kader_commands[kader_cmd]
             title, idx = extract_brace_content(content, idx)
             title = title.strip()
-            # Verwerk inline wiskunde en vetgedrukte tekst in de titel
+            # Verwerk inline wiskunde, vetgedrukte tekst, lijsten en kader commando's in de titel
             title = replace_inline_math(title)
             title = replace_bold_text(title)
             title = replace_itemize_enumerate(title)
+            title = replace_kader_commands_in_text(title)
             kader_stack.append((kader_type, title))
         elif cmd_type == 'akq':
             # Verwachten we een vraag?
@@ -114,13 +115,16 @@ def main():
                     current_kader_type, current_title = kader_stack[-1]
                 else:
                     current_kader_type, current_title = 'qs', '/'
-                # Verwerk inline wiskunde en vetgedrukte tekst in vraag en antwoord
+                # Verwerk inline wiskunde, vetgedrukte tekst, lijsten en kader commando's in vraag en antwoord
                 question_processed = replace_inline_math(current_question)
                 question_processed = replace_bold_text(question_processed)
                 question_processed = replace_itemize_enumerate(question_processed)
+                question_processed = replace_kader_commands_in_text(question_processed)
+
                 answer_processed = replace_inline_math(answer)
                 answer_processed = replace_bold_text(answer_processed)
                 answer_processed = replace_itemize_enumerate(answer_processed)
+                answer_processed = replace_kader_commands_in_text(answer_processed)
 
                 # Verwerk afbeeldingen in vraag en antwoord
                 question_processed = process_images(question_processed)
@@ -136,7 +140,7 @@ def main():
                 cards.append(card)
             current_question = None
             expecting = 'command'
-        idx = next_match.end()
+        # idx wordt al bijgewerkt in extract_brace_content, dus we hoeven het hier niet aan te passen
 
     # Merk op dat we aannemen dat kaders correct zijn afgesloten
 
@@ -151,6 +155,7 @@ def main():
 def extract_brace_content(text, index):
     brace_count = 1
     start = index
+    index += 1  # Ga naar het eerste teken binnen de accolades
     length = len(text)
     while index < length and brace_count > 0:
         if text[index] == '{':
@@ -158,7 +163,7 @@ def extract_brace_content(text, index):
         elif text[index] == '}':
             brace_count -= 1
         index += 1
-    content = text[start:index-1]  # Verwijder de laatste '}'
+    content = text[start+1:index-1]  # Haal de inhoud tussen de accolades op
     return content, index
 
 def replace_inline_math(text):
@@ -191,14 +196,34 @@ def replace_itemize_enumerate(text):
     text = pattern.sub(replace_list, text)
     return text
 
+def replace_kader_commands_in_text(text):
+    # Maak een regex pattern om alle kader commando's te vinden
+    kader_cmds = list(kader_commands.keys())
+    pattern = re.compile(r'\\(' + '|'.join(kader_cmds) + r')\s*\{')
+    idx = 0
+    while True:
+        match = pattern.search(text, idx)
+        if not match:
+            break
+        cmd = match.group(1)
+        replacement = kader_commands[cmd]
+        # Vind de inhoud tussen de accolades
+        content, end_idx = extract_brace_content(text, match.end() - 1)
+        # Bouw de vervangende tekst
+        replacement_text = f"{replacement}: {content}"
+        # Vervang in de tekst
+        text = text[:match.start()] + replacement_text + text[end_idx:]
+        # Update de index
+        idx = match.start() + len(replacement_text)
+    return text
+
 def process_images(text):
-    # Verwerk \begin{figure} ... \end{figure} blokken
-    text = process_figure_environments(text)
-    # Verwerk \incfig{...} commando's
     text = process_incfig_commands(text)
+    text = process_figure_environments(text)
     return text
 
 def process_figure_environments(text):
+    anki_media_folder = os.path.expanduser('~/.local/share/Anki2/Gebruiker 1/collection.media/')
     # Zoek naar \begin{figure} ... \end{figure} blokken
     figure_pattern = re.compile(r'(\\begin\{figure\}.*?\\end\{figure\})', re.DOTALL)
     matches = figure_pattern.finditer(text)
@@ -213,7 +238,6 @@ def process_figure_environments(text):
             # Kopieer de afbeelding naar de Anki media map
             filename = os.path.basename(image_path)
             filename = sanitize_filename(filename)
-            anki_media_folder = os.path.expanduser('~/.local/share/Anki2/Gebruiker 1/collection.media/')
             destination_path = os.path.join(anki_media_folder, filename)
             if not os.path.exists(destination_path):
                 try:
@@ -231,31 +255,19 @@ def process_figure_environments(text):
     return text
 
 def process_incfig_commands(text):
+    # Zorg ervoor dat anki_media_folder beschikbaar is
+    anki_media_folder = os.path.expanduser('~/.local/share/Anki2/Gebruiker 1/collection.media/')
     # Zoek naar \incfig{...} commando's
     incfig_pattern = re.compile(r'\\incfig\{([^}]+)\}')
     matches = incfig_pattern.finditer(text)
     for match in matches:
         incfig_command = match.group(0)
         image_name = match.group(1).strip()
-        # Verwacht dat de afbeelding zich bevindt in './figures/' met extensie '.pdf_tex' of '.pdf'
+        # Verwacht dat de afbeelding zich bevindt in './figures/' met extensie '.pdf'
         images_dir = os.path.join('/home/dyntif/school/current-subject/nota/', 'figures')  # Pas dit pad aan indien nodig
-        # Probeer de afbeelding te vinden met extensie '.pdf_tex' of '.pdf'
-        possible_extensions = ['.pdf_tex', '.pdf']
-        found_image = False
-        for ext in possible_extensions:
-            image_path = os.path.join(images_dir, image_name + ext)
-            if os.path.exists(image_path):
-                found_image = True
-                break  # We hebben de afbeelding gevonden
-        if found_image:
-            # Als het een .pdf_tex is, converteer deze naar .pdf en dan naar .png
-            if image_path.endswith('.pdf_tex'):
-                pdf_path = os.path.join(images_dir, image_name + '.pdf')
-                if not os.path.exists(pdf_path):
-                    print(f"PDF bestand {pdf_path} niet gevonden voor {image_path}")
-                    continue
-            else:
-                pdf_path = image_path
+        # Pad naar het pdf-bestand
+        pdf_path = os.path.join(images_dir, image_name + '.pdf')
+        if os.path.exists(pdf_path):
             # Converteer de .pdf naar .png
             png_filename = image_name + '.png'
             png_destination_path = os.path.join(anki_media_folder, png_filename)
@@ -271,7 +283,7 @@ def process_incfig_commands(text):
             # Vervang de \incfig commando en eventuele omliggende figure omgeving
             text = replace_incfig_with_img(text, incfig_command, img_tag)
         else:
-            print(f"Afbeelding {image_name} niet gevonden in {images_dir}")
+            print(f"Afbeelding {pdf_path} niet gevonden.")
             # Vervang het \incfig commando door een placeholder
             text = text.replace(incfig_command, f'[Afbeelding {image_name} niet gevonden]')
     return text
