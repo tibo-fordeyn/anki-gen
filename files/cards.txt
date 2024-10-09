@@ -11,12 +11,7 @@ We definiëren absolute versnelling
 Voorbeeld; Voorbeeld stoot
 Gemiddelde kracht maal tijdsinterva moet gelijk zijn aan geleverde stoot, beschouw een auto die tegen muur rijdt zoals afbeeldingn hieroner
 ||||||||||
-\begin{figure}[ht]
-    \centering
-    <img src="auto.png" style="width:50%;">
-    \caption{auto}
-    \label{fig:auto}
-\end{figure}
+
 \[
 \vec{N} = \vec{P} _{II} - \vec{P} _{I}      
 .\]   
@@ -87,10 +82,7 @@ Voorbeeld; Stoel met twee halters
 <img src="screenshot_2024-10-07_10-51-30_20241007105141_20241007105142_20241007105143_20241007105144.png" style="width:50%;">
 
 Voor behoud van impulsmoment rond de z-as
-\begin{itemize}
-	\item \textbf{Als de straal stijgt moet omega dalen} 
-	\item \textbf{Als de straal kleiner wordt moet omega groter worden} 
-\end{itemize}
+<ul><li><b>Als de straal stijgt moet omega dalen</b></li><li><b>Als de straal kleiner wordt moet omega groter worden</b></li></ul>
 ----------
 Voorbeeld; Demo van stoel
 \[
@@ -105,13 +97,11 @@ Voorbeeld; Demo van stoel
 Voorbeeld; Impulsmomentvector
 Bereken het impulsmoment
 ||||||||||
-\begin{enumerate}
-	\item \[
+<ol><li>\[
 	\vec{L} ' = I_{c} \begin{pmatrix}
 		0  \\
 		\omega   \\
 		0
 	\end{pmatrix}   
-	.\]  
-\end{enumerate}
+	.\]</li></ol>
 ----------

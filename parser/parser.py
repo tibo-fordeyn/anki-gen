@@ -3,6 +3,7 @@ import sys
 import re
 import os
 import shutil
+from subprocess import run
 
 def main():
     if len(sys.argv) != 2:
@@ -78,8 +79,10 @@ def main():
             kader_type = kader_commands[kader_cmd]
             title, idx = extract_brace_content(content, idx)
             title = title.strip()
-            # Verwerk inline wiskunde in de titel
+            # Verwerk inline wiskunde en vetgedrukte tekst in de titel
             title = replace_inline_math(title)
+            title = replace_bold_text(title)
+            title = replace_itemize_enumerate(title)
             kader_stack.append((kader_type, title))
         elif cmd_type == 'akq':
             # Verwachten we een vraag?
@@ -111,9 +114,13 @@ def main():
                     current_kader_type, current_title = kader_stack[-1]
                 else:
                     current_kader_type, current_title = 'qs', '/'
-                # Verwerk inline wiskunde in vraag en antwoord
+                # Verwerk inline wiskunde en vetgedrukte tekst in vraag en antwoord
                 question_processed = replace_inline_math(current_question)
+                question_processed = replace_bold_text(question_processed)
+                question_processed = replace_itemize_enumerate(question_processed)
                 answer_processed = replace_inline_math(answer)
+                answer_processed = replace_bold_text(answer_processed)
+                answer_processed = replace_itemize_enumerate(answer_processed)
 
                 # Verwerk afbeeldingen in vraag en antwoord
                 question_processed = process_images(question_processed)
@@ -159,6 +166,31 @@ def replace_inline_math(text):
     text = re.sub(r'\$(.+?)\$', r'\\(\1\\)', text)
     return text
 
+def replace_bold_text(text):
+    # Vervang \textbf{...} door <b>...</b>
+    # Zorg ervoor dat geneste \textbf{} correct worden verwerkt
+    pattern = re.compile(r'\\textbf\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}')
+    while pattern.search(text):
+        text = pattern.sub(r'<b>\1</b>', text)
+    return text
+
+def replace_itemize_enumerate(text):
+    # Vervang \begin{itemize}...\end{itemize} en \begin{enumerate}...\end{enumerate} door HTML-lijsten
+    def replace_list(match):
+        list_type = match.group(1)
+        items_text = match.group(2)
+        # Vervang \item door <li>
+        items = re.split(r'\\item', items_text)
+        items = [item.strip() for item in items if item.strip()]
+        items_html = ''.join(f'<li>{item}</li>' for item in items)
+        if list_type == 'itemize':
+            return f'<ul>{items_html}</ul>'
+        else:
+            return f'<ol>{items_html}</ol>'
+    pattern = re.compile(r'\\begin\{(itemize|enumerate)\}(.*?)\\end\{\1\}', re.DOTALL)
+    text = pattern.sub(replace_list, text)
+    return text
+
 def process_images(text):
     # Verwerk \begin{figure} ... \end{figure} blokken
     text = process_figure_environments(text)
@@ -168,14 +200,16 @@ def process_images(text):
 
 def process_figure_environments(text):
     # Zoek naar \begin{figure} ... \end{figure} blokken
-    figure_pattern = re.compile(r'\\begin\{figure\}.*?\\end\{figure\}', re.DOTALL)
+    figure_pattern = re.compile(r'(\\begin\{figure\}.*?\\end\{figure\})', re.DOTALL)
     matches = figure_pattern.finditer(text)
     for match in matches:
-        figure_block = match.group()
-        # Zoek naar pad tussen dubbele aanhalingstekens in de figure omgeving
-        path_match = re.search(r'"([^"]+)"', figure_block)
-        if path_match:
-            image_path = path_match.group(1)
+        figure_block = match.group(1)
+        # Verwerk eventuele \incfig{...} commando's binnen de figure omgeving
+        figure_block_processed = process_incfig_commands(figure_block)
+        # Zoek naar \includegraphics commando in de figure omgeving
+        includegraphics_match = re.search(r'\\includegraphics.*?\{(.*?)\}', figure_block_processed)
+        if includegraphics_match:
+            image_path = includegraphics_match.group(1).strip().strip('"')
             # Kopieer de afbeelding naar de Anki media map
             filename = os.path.basename(image_path)
             filename = sanitize_filename(filename)
@@ -189,8 +223,11 @@ def process_figure_environments(text):
             # Vervang de figure omgeving door HTML code
             # Voeg stijl toe om de afbeelding kleiner te maken
             img_tag = f'<img src="{filename}" style="width:50%;">'  # Pas de breedte aan indien nodig
-            # Vervang in de tekst
+            # Vervang de volledige figure omgeving door de img tag
             text = text.replace(figure_block, img_tag)
+        else:
+            # Als er geen afbeelding gevonden is, verwijder dan de figure omgeving
+            text = text.replace(figure_block, '')
     return text
 
 def process_incfig_commands(text):
@@ -198,13 +235,12 @@ def process_incfig_commands(text):
     incfig_pattern = re.compile(r'\\incfig\{([^}]+)\}')
     matches = incfig_pattern.finditer(text)
     for match in matches:
+        incfig_command = match.group(0)
         image_name = match.group(1).strip()
-        # Verwacht dat de afbeelding zich bevindt in './figures/' met extensie '.png'
-        # Pad naar de afbeelding
-        # images_dir = os.path.join(os.path.dirname(sys.argv[1]), 'figures')
+        # Verwacht dat de afbeelding zich bevindt in './figures/' met extensie '.pdf_tex' of '.pdf'
         images_dir = os.path.join('/home/dyntif/school/current-subject/nota/', 'figures')  # Pas dit pad aan indien nodig
-        # Probeer de afbeelding te vinden met extensie '.png' of '.pdf'
-        possible_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.pdf']
+        # Probeer de afbeelding te vinden met extensie '.pdf_tex' of '.pdf'
+        possible_extensions = ['.pdf_tex', '.pdf']
         found_image = False
         for ext in possible_extensions:
             image_path = os.path.join(images_dir, image_name + ext)
@@ -212,37 +248,46 @@ def process_incfig_commands(text):
                 found_image = True
                 break  # We hebben de afbeelding gevonden
         if found_image:
-            # Kopieer de afbeelding naar de Anki media map
-            filename = os.path.basename(image_path)
-            filename = sanitize_filename(filename)
-            anki_media_folder = os.path.expanduser('~/.local/share/Anki2/Gebruiker 1/collection.media/')
-            destination_path = os.path.join(anki_media_folder, filename)
-            if not os.path.exists(destination_path):
+            # Als het een .pdf_tex is, converteer deze naar .pdf en dan naar .png
+            if image_path.endswith('.pdf_tex'):
+                pdf_path = os.path.join(images_dir, image_name + '.pdf')
+                if not os.path.exists(pdf_path):
+                    print(f"PDF bestand {pdf_path} niet gevonden voor {image_path}")
+                    continue
+            else:
+                pdf_path = image_path
+            # Converteer de .pdf naar .png
+            png_filename = image_name + '.png'
+            png_destination_path = os.path.join(anki_media_folder, png_filename)
+            if not os.path.exists(png_destination_path):
                 try:
-                    shutil.copy(image_path, destination_path)
+                    # Converteer pdf naar png
+                    run(['convert', '-density', '300', pdf_path, '-quality', '90', png_destination_path])
                 except Exception as e:
-                    print(f"Fout bij kopiëren van afbeelding {image_path}: {e}")
-            # Controleer of het een pdf is en converteer naar png
-            if filename.lower().endswith('.pdf'):
-                png_filename = filename[:-4] + '.png'
-                png_destination_path = os.path.join(anki_media_folder, png_filename)
-                if not os.path.exists(png_destination_path):
-                    try:
-                        # Converteer pdf naar png
-                        from subprocess import run
-                        run(['convert', '-density', '300', image_path, '-quality', '90', png_destination_path])
-                        filename = png_filename
-                    except Exception as e:
-                        print(f"Fout bij converteren van pdf naar png voor {image_path}: {e}")
-                else:
-                    filename = png_filename
+                    print(f"Fout bij converteren van pdf naar png voor {pdf_path}: {e}")
+                    continue
             # Vervang het \incfig commando door een <img> tag
-            img_tag = f'<img src="{filename}" style="width:50%;">'  # Pas de breedte aan indien nodig
-            text = text.replace(match.group(), img_tag)
+            img_tag = f'<img src="{png_filename}" style="width:50%;">'  # Pas de breedte aan indien nodig
+            # Vervang de \incfig commando en eventuele omliggende figure omgeving
+            text = replace_incfig_with_img(text, incfig_command, img_tag)
         else:
             print(f"Afbeelding {image_name} niet gevonden in {images_dir}")
             # Vervang het \incfig commando door een placeholder
-            text = text.replace(match.group(), f'[Afbeelding {image_name} niet gevonden]')
+            text = text.replace(incfig_command, f'[Afbeelding {image_name} niet gevonden]')
+    return text
+
+def replace_incfig_with_img(text, incfig_command, img_tag):
+    # Verwijder eventuele omringende figure omgeving
+    # Zoek naar \begin{figure} vóór incfig_command
+    figure_start = text.rfind('\\begin{figure}', 0, text.find(incfig_command))
+    figure_end = text.find('\\end{figure}', text.find(incfig_command))
+    if figure_start != -1 and figure_end != -1:
+        # Vervang het gehele figure blok door de img tag
+        figure_block = text[figure_start:figure_end+len('\\end{figure}')]
+        text = text.replace(figure_block, img_tag)
+    else:
+        # Vervang alleen het incfig commando door de img tag
+        text = text.replace(incfig_command, img_tag)
     return text
 
 def sanitize_filename(filename):
@@ -251,4 +296,8 @@ def sanitize_filename(filename):
     return filename
 
 if __name__ == '__main__':
+    # Zorg ervoor dat de Anki media map bestaat
+    anki_media_folder = os.path.expanduser('~/.local/share/Anki2/Gebruiker 1/collection.media/')
+    if not os.path.exists(anki_media_folder):
+        os.makedirs(anki_media_folder)
     main()
