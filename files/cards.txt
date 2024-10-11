@@ -1,254 +1,195 @@
-Stelling; oplossen met karakteristieke veelterm
-\[
-	a_{0} y''+a_{1} y' +a_{2} y=0   
-	.\]
+Definitie; Het interpolatiecriterium
+Kies \(N\) punten \(x_{j} \in \left[ a,b \right]   \)  en eis dat \(g(x_{j}  )= f(x_{j}  )  , j =,1,\ldots ,N \)
 ||||||||||
-We vinden de karakteristieke vergelijking
+Met andere woorden er wordt in essentie enkel geëist dat de doelfunctie in enkele punten exact samenvalt. Dan wordt een veelterm bepaald.
+	
+lineair stelsel;
+\[
+\sum_{i=1}^{n} c_{i} g_{i} (x_{j}  )= f(x_{j}  )     , j=1,2,\ldots ,N
+.\]  
+\[
+\begin{pmatrix}
+	g_{1} (x_{1}  )   &g_{2} (x_{1}  )    & \ldots  & g_{N} (x_{1}  )  \\
+	g_{1} (x_{2}  )   & g_{2} (x_{2}  )   & \ldots  & g_{N} (x_{2}  )  \\
+	\vdots  & \vdots  & \vdots  & \vdots  \\
+	g_{1} (x_{N}  )   & g_{2} (x_{N}  )   & \ldots  & g_{n} (x_{N}  )  
+\end{pmatrix} \begin{pmatrix}
+	c_{1}    \\
+	c_{2}    \\
+	\vdots   \\
+	c_{N}    
+\end{pmatrix} = \begin{pmatrix}
+	f(x_{1}  )   \\
+	f(x_{2}  )   \\
+	\vdots   \\
+	f(x_{N}  )   
+\end{pmatrix} 
+.\]  
+kwaliteit hangt af van keuzes interpolatiepunten, veelterminterpolatie geeft grote fouten.
+
+<img src="screenshot_2024-10-08_15-40-06_20241008154014.png" style="width:50%;">
+----------
+Definitie; Orthogonaliteit van functies
+Twee functies \(f,g\in \mathbb{R} \) zijn orthogonaal op \(\left[ a,b \right]  \) als
+||||||||||
+\[
+\int_{a}^{b} f(x)g(x)dx    
+.\]
+----------
+Definitie; Orthogonaal tov gewichtsfunctie
+Twee reele functies \(f,g\) zijn orthogonaal op \(\left[ a,b \right]  \) tov gewichtsfunctie w, \(w(x)>0 \) voor \(x\in (a,b) \)
+||||||||||
+\[
+\int_{a}^{b} w(x) f(x)g(x)dx=0    
+.\]
+----------
+Voorbeeld; benaderen
+We gaan een functie f benaderen op een interval \(\left[ a,b \right]  \) door een lineaire combinatie van basisfuncties
 	\[
-	\rho (\nu) = a_{0} \nu ^2 +a_{1} \nu + a_{2}    
+	f(x)\approx  \sum_{i=1}^{N} c_{i} g_{i} (x)     
 	.\]  
-	met mogelijke oplossingen
 	\[
 	\begin{cases}
-		\nu _{1} \neq \nu _{2} \in \mathbb{R} \implies y(x)= c_{1} e^{\nu_{1} x } + c_{2} e^{\nu_{2} x } \\
-		\nu_{1} =\nu_{2} \implies  y(x)= c_{1} e^{\nu_{1} x} +c_{2} xe^{\nu_{1} x }    \\
-		\nu_{1,2} = \alpha \pm \beta i \implies y(x)=c_{1} e^{\alpha x} \cos{\big(  \beta x\big)}       +c_{2} e^{\alpha x}\sin{\big( \beta x \big)}    \\
+		g_{1}   \\
+		g_{2}   \\
+		\vdots \\
 	\end{cases} 
 	.\]  
-	Verduidelijking:  \(\nu\) in plaats van \(\lambda \)   {
-		Lambda krijgt later een andere betekenis, daarom nu.
-	}
-----------
-Voorbeeld; 
-\[
-	y''=\lambda y
+	We gaan een fout karakteriseren met een kleinste kwadratenfunctie met een gewicht \(w(x) \) 
+	\[
+	\int_{a}^{b} w(x)\left(f(x)-g(x)   \right) ^2 dx    
 	.\]  
-	waarbij lambda geïnterpreteerd wordt als een parameter
+	dit willen we minimaliseren
+||||||||||
+er zijn voorwaarden mogelijk voor een perfecte match. Stel dat de basisfuncties <b>orthogonaal zijn tov elkaar op \(\left[ a,b \right]  \) tov \(w(x) \). </b>  
+In dat geval is de uitdrukking voor optimale coefficienten eenvoudig (de te minimaliseren formule.) 
+\[
+c_{i} = \frac{\int_{a}^{b} w(x)f(x)g_{i} (x)dx }{  \int_{a}^{b} w(x) \left(g_{i} (x)  \right) ^2 dx          }
+.\]
+----------
+Voorbeeld; benaderen
+stel \(w(x)=1 \) en \(\left[ a,b \right] = \left[ -\pi ,\pi  \right]   \)  we krijgen trigonometrische orthogonaliteit
 ||||||||||
 \[
-	p(\nu )=\nu ^2 -\lambda  
-	.\]  
-\[
-\begin{cases}
-	\lambda =0 \implies \nu _{1} =\nu _{2} \implies y(x)= c_{1} +c_{2} x     \\
-	\lambda \in \mathbb{R}^{+} \implies \nu _{1,2} = \pm \sqrt{\lambda } \implies y(x)=c_{1} e^{\sqrt{\lambda } x }+c_{2} e^{-\sqrt{\lambda } x }        \\
-\lambda \in \mathbb{R} ^{-} \implies \nu _{1,2} = \pm \sqrt{-\lambda } i\implies y(x)= c_{1} \cos{\big(  \sqrt{-\lambda } x \big)}  +c_{2} \sin{\big( \sqrt{-\lambda } x  \big)}           
-\end{cases} 
+\int_{-\pi }^{\pi } \cos{\big( kx \big)} \cos{\big( lx \big)} dx= \begin{cases}
+	0, k\neq l \\
+	\pi ,k=l\neq 0 \\
+	2\pi ,k=l=0
+\end{cases}     
 .\]  
-Herinnering:  Hyperbolische functies {
-	Merk op dat de hyperboligsche functies lineaire combinaties zijn van die exponentiële functies dus als lambda positief is vinden we ook
+\[
+\int_{-\pi }^{\pi } \cos{\big( kx \big)} \sin{\big( lx \big)} dx=0    
+.\]  
+\[
+\int_{-\pi }^{\pi } \sin{\big( kx \big)} \sin{\big( lx \big)} = \begin{cases}
+	0,k\neq l,k=l=0 \\
+	\pi ,k=l\neq 0 \\
+\end{cases}     
+.\]
+----------
+Definitie; Trigonometrische veelterm
+Gedefinieerd als
+||||||||||
+\[
+g(x)= a_{0} +\sum_{k=1}^{n} \left(a_{k} \cos{\big( kx \big)} +b_{k} \sin{\big( kx \big)}     \right)     
+.\]
+----------
+Voorbeeld; Met afgeleiden
+\[
+	J_{0} (\beta _{0} x ),J_{0} (\beta _{1} x ),\ldots     
+	.\]
+||||||||||
+<img src="besselafgeleid.png" style="width:50%;">
+----------
+Definitie; Kleinste kwadraten trigonometrische veelterm
+\[
+	g(x)=a_{0} +\sum_{k=1}^{n} \left(a_{k} \cos{\big( kx \big)}  +b_{k} \sin{\big( kx \big)}    \right)  
+	.\]
+||||||||||
+\[
+	a_{0} = \frac{1}{2\pi }\int_{-\pi }^{\pi } f(x)dx    
+	.\]  
 	\[
-	y(x)=d_{1} \cosh{\big( \sqrt{\lambda } x  \big)}+d_{2} \sinh{\big( \sqrt{\lambda }  x \big)}     
+	a_{k} = \frac{1}{\pi }\int_{-\pi }^{\pi } f(x)\cos{\big( kx \big)} \text{dx}  ,k=1,\ldots ,n     
+	.\]  
+	\[
+	b_{k} = \frac{1}{\pi }\int_{-\pi }^{\pi } f(x)\sin{\big( kx \big)} \text{dx}  ,k=1,\ldots ,n     
+	.\]  
+Verduidelijking:  of ook {
+	\[
+	g(x)= \frac{a_{0}}{2}+\sum_{k=1}^{n} \left(a_{k} \cos{\big( kx \big)} +b_{k} \sin{\big( kx \big)}     \right)     
+	.\]  
+	met
+	\[
+	a_{k} = \frac{1}{\pi }\int_{-\pi }^{\pi } f(x)\cos{\big( kx \big)} \text{dx}  ,k=0,\ldots ,n     
 	.\]  
 }
 ----------
-Definitie; gamma functie
-Gammafunctie voor \(x>0:\)
+Definitie; Een fourierreeks
+gedefinieerd als
 ||||||||||
 \[
-	\Gamma (x)=\int_{0}^{+ \infty} e^{-u}u^{x-1}     du
-	.\]
-----------
-Eigenschap; Recursiebetrekking
-Recursie eigenschap gamma functie
-||||||||||
-\[
-\Gamma (x+1) = x\Gamma (x) 
+f(x)\approx  \frac{a_{0}}{2}+ \sum_{k=1}^{\infty} \left(a_{k} \cos{\big( kx \big)} +b_{k} \sin{\big( kx \big)}     \right)     
 .\]
 ----------
-Bewijs; Bewijs recursie eigenschap
+Eigenschap; Integraal over periodieke functie
+\(f(x) \) een periodieke functie met periode T en f integreerbaar;
+||||||||||
 \[
-\Gamma (x+1)= x\Gamma (x)  
+\int_{0}^{T} f(x)\text{dx}  =\int_{\alpha }^{\alpha +T} f(x)\text{dx}        
+.\]
+----------
+Definitie; Fourierreeks van functie met periode T
+\(f(x+T)=f(x),\forall x  \) 	
+\[
+f(x)\approx  \frac{a_{0}}{2} + \sum_{k=1}^{\infty} \left(a_{k} \cos{\big( \frac{2\pi kx}{T}  \big)} + b_{k} \sin{\big( \frac{2\pi kx}{T}  \big)}     \right)     
 .\]
 ||||||||||
-Bewijs; 
+met
 	\[
-	\Gamma (x+1)= \int_{0}^{+ \infty}    e^{-u}u^{x}du  
+	a_{k} = \frac{2}{T}\int_{0}^{T} f(x)\cos{\big( \frac{2\pi kx}{T}  \big)} \text{dx}       
 	.\]  
-	partiele integratie
 	\[
-	-u^{x}e^{-u} |^{\infty} _{0} + \int_{0}^{+ \infty} e^{-u}xu^{x-1}du       
+	b_{k} =\frac{2}{T}\int_{0}^{T} f(x)\sin{\big( \frac{2\pi kx}{T}  \big)} \text{dx}       
 	.\]  
-	Verduidelijking:   {
-		\[
-		\lim_{u \to 0}  u^{x}e^{-u}=\lim_{u \to \infty}  u^{x}e^{-u}=0    
-		.\]  
-		hieruit vinden we dat die term nul wordt
-	} 
+Dit volgt uit de substitutie \(\phi (y)=f(x)  , x=\frac{yT}{2\pi }\).
+----------
+Voorbeeld; Beschouw
+\(f(x) \) periodieke uitbreiding van 
 	\[
-	\iff \int_{0}^{+ \infty} e^{-u}xu^{x-1}du    
-	.\]
-----------
-Definitie; Definitie van de gammafunctie op \(\mathbb{R} \)
-<img src="screenshot_2024-10-04_21-18-40_20241004211849_20241004211850_20241004211853_20241004211854_20241004211855_20241004211856.png" style="width:50%;">
-||||||||||
-\[
-\Gamma (x)=\begin{cases}
-	\int_{0}^{+ \infty} e^{-u}u^{x-1}du,x>0     \\
-	\frac{\Gamma (x+1) }{x}, x<0\wedge |x| \notin \mathbb{N}   
-\end{cases}  
-.\]
-----------
-Eigenschap; Gammafunctie en faculteiten
-Gammafunctie is een uitbreiding van de faculteitenfunctie
-||||||||||
-\[
-\Gamma (n+1)=n! 
-.\]
-----------
-Definitie; differentiaalvergelijking van Bessel
-Orde p (positieve parameter, niet echt de orde)
-||||||||||
-\[
-x^2 y'' (x)+ xy'(x)+ (x^2 -p^2 )y(x)=0    
-.\]  
-met \(p\ge 0\)
-----------
-Definitie; differentiaalvergelijking van Bessel
-\subsubsection{Eerste oplossing}%
-\label{ssub:Eerste oplossing}
-van deze differentiaalvergelijking is via reeksontwikkeling voor p.
-\[
-y_{1} (x)=\sum_{k=0}^{\infty} C_{1} x^{k+p}     
-.\]  
-Idee:   {
-waarbij \(C_{k}  \) voldoet aan de recursiebetrekking die we vinden door in te vullen in differentiaalvergelijking. 
-} 
-\[
-x^2 y'' (x)+ xy'(x)+ (x^2 -p^2 )y(x)=0    
-.\]
-||||||||||
-\[
-x^2 \left(   \sum_{k=0}^{\infty} C_{1} x^{k+p}      \right)'' + x \left( \sum_{k=0}^{\infty} C_{1} x^{k+p}     \right)  ' + (x^2 -p^2 ) \left(  \sum_{k=0}^{\infty} C_{1} x^{k+p}      \right) =0
-.\]  
-door \(C_{k}  \) te schrijven laat ik het somteken even weg 
-\[
-\left( C_{k} x^{k+p}   \right) ' = (k+p)C_{k} x^{k+p-1}     
-.\]  
-\[
-\left( C_{k} x^{k+p}   \right)  ''= (k+p)(k+p-1)C_{k} x^{k+p-2}    
-.\]  
-\[
-C_{k} = \frac{-C_{k-2}  }{k(k+2p) }, k\text{ even } , C_{k} =0, k\text{ oneven}      
-.\]  
-\[
-J_{p} (x)= \sum_{k=0}^{\infty} \frac{(-1)^{k}x^{2k+p}   }{k! \Gamma (p+k+1)2^{2k+p}  }    
-.\]  
-\[
-J_{n} (x)= \sum_{k=0}^{\infty} \frac{(-1) ^{k} }{k!(n-k)! } \left( \frac{x}{2} \right) ^{2k+n}      
-.\]  
-waaruit dus blijkt
-\[
-J_{0} (x)= \sum_{k=0}^{\infty} \frac{(-1)^{k}  }{(k!)^2  } \left( \frac{x}{2} \right)    ^{2k}   
-.\]
-----------
-Eigenschap; Afgeleide relatie
-\[
-	\frac{d}{dx} \left[ x^{n}J_{n} (x)    \right] =x^{n}J_{n-1} (x)    
+	g(x)=\begin{cases}
+		x, 0\le x <1 \\
+		1,1\le x<3 \\
+		4-x,3 \le x \le 4
+	\end{cases}  
 	.\]
 ||||||||||
-stel
-	\[
-	f(x)= x^{n}J_{n} (x)    
-	.\]  
-	\[
-	f'(x)= nx^{n-1} J_{n} (x)+x^{n}J_{n} '(x)       
-	.\]  
-	volgens de eigenschap geldt ook
-	\[
-	f'(x)= x^{n}J_{n-1} (x)     
-	.\]  
-	\[
-	\implies nx^{n-1}J_{n} (x)+x^{n}J'_{n} (x)=x^{n}J_{n-1} (x)         
-	.\]  
-	Hieruit volgt
-	\[
-	J'_{n} (x)= J_{n-1} (x)- \frac{n}{x} J_{n} (x)      
-	.\]
-----------
-Eigenschap; Afgeleide relatie
-\[
-\frac{d}{\text{dx}  }\left[ x^{-n}J_{n} (x)    \right] = -x^{-n}J_{n+1} (x)    
-.\]
-||||||||||
-\[
-g(x)= x^{-n}J_{n} (x)    
-.\]  
-\[
-g'(x)= -nx^{-n-1}J_{n}  (x)+ x^{-n}J'_{n} (x)      
-.\]  
-\[
-	g'(x)= -x^{-n}J_{n+1}  (x)   
-.\]  
-\[
-\implies J'_{n} (x)= -J_{n+1}(x)+ \frac{n}{x}J_{n} (x)       
-.\]
-----------
-Bewijs; Bewijs van afgeleide relatie
-\[
-J'_{n} (x)= \frac{1}{2}\left[ J_{n-1} (x)- J_{n+1} (x)     \right]    
-.\]
-||||||||||
-Tel de twee vergelijking uit voorgaande eigenschappen op;
-\[
-	J'_{n} (x)+ J'_{n} (x)= \left( J_{n-1} (x) - \frac{n}{x}J_{n} (x)      \right)  + \left( -J_{n+1} (x)+ \frac{n}{x}J_{n} (x)     \right)  
-.\]  
-dit simplificeren dan volgt direkt het gestelde.
-----------
-Voorbeeld; Bessel differentiaalvergelijking vb
-Idee:   {
-	\[
-	J'_{0} (x)= - J_{1} (x)    
-	.\]  
-		}
-||||||||||
-<ul><li>Afgeleide relatie
-\[
-J'_{n} (x)= \frac{1}{2}\left[ J_{n-1} (x)- J_{n+1} (x)     \right]    
-.\]</li><li>Relatie \(J_{-n}  \) en \(J_{n}  \)  
-	\[
-	J_{-n} (x)= (-1)^{n}J_{n} (x)      
-	.\]</li></ul>  
+Dit is een even functie en heeft periode \(T=4\). Ziet er als volgt uit;
+	
+<img src="screenshot_2024-10-11_17-42-27_20241011174246_20241011174247_20241011174252_20241011174253_20241011174254_20241011174255.png" style="width:50%;">
 
+Het is een even functie, fourierreeks herleidt tot cosinusreeks
 \[
-\implies J'_{0} (x)= \frac{1}{2}\left[ J_{-1} (x)- J_{1} (x)     \right]    
+f(x)\approx  \frac{a_{0}  }{2} + \sum_{k=1}^{\infty} a_{k} \cos{\big( \frac{2\pi kx}{T}  \big)}      
 .\]  
 \[
-\implies J_{-1} (x)= (-1)^{1}J_{1} (x)= - J_{1} (x)        
+\iff \frac{a_{0}  }{2} + \sum_{k=1}^{\infty} a_{k} \cos{\big( \frac{\pi kx}{2}  \big)}  = \sum_{k=0}^{\infty} f_{k } (x)      
 .\]  
-Hieruit volgt direkt het gestelde.
-----------
-Definitie; Besselfuncties van de tweede soort
-Gedefinieerd als volgt;
-||||||||||
 \[
-Y_{p} (x) = \begin{cases}
-	\frac{J_{p} (x)\cos{\big( p\pi  \big)} - J_{-p } (x)     }{\sin{\big( p\pi  \big)}  }, p\notin \mathbb{N} \wedge p\neq 0  \\ 
-	\lim_{p \to 0}  \frac{J_{p} (x)\cos{\big( p\pi  \big)}  - J_{-p} (x)    }{\sin{\big( p\pi  \big)}  } , p=0 \\
-	\lim_{p \to n}  \frac{J_{p} (x)\cos{\big( p\pi  \big)}  - J_{-p} (x)    }{\sin{\big( p\pi  \big)}  },p=n\in \mathbb{N}  
-\end{cases}   
+a_{0} = \frac{1}{2}\int_{0}^{4} f(x)\text{dx}  =\frac{3}{2}    
 .\]  
-Waar we dus die cotangens moeten beschouwen als coefficient voor \(J_{p}  \) en die \(\frac{-1}{\sin{\big( \ldots  \big)}  }\) als coefficient van \(J_{-p}  \)
-----------
-Eigenschap; 
-Een fundamenteel stel voor \(p\ge 0\) :
-||||||||||
+<b>Dit is de gemiddelde waarde.</b> 
 \[
-\left\{ J_{p} (x),Y_{p} (x)     \right\}  
+a_{k} = \frac{2}{T}\int_{0}^{T} f(x)\cos{\big( \frac{2\pi kx}{T}  \big)} \text{dx}  =\frac{4}{T}\int_{0}^{\frac{T}{2}} f(x)\cos{\big( \frac{2\pi kx}{T}  \big)} \text{dx}           
+.\]  
+\[
+\iff  \int_{0}^{1} x\cos{\big( \frac{\pi kx}{2}  \big)} \text{dx}  + \int_{1}^{2} \cos{\big( \frac{\pi kx}{2}  \big)} \text{dx}        
 .\]
 ----------
-Definitie; Gewijzigde Besselvergelijking
-Gewijzigde Besselvergelijking van orde p
+Definitie; Stuksgewijs continue functie
+\(f(x) \) is een stuksgewijze continue functie op \(\left[ a,b \right]  \)
 ||||||||||
-\[
-x^2 y''+xy'-(x^2 +p^2 )y=0 
-.\]  
-met \(p\ge 0\) een parameter
-----------
-Eigenschap; 
-Fundamenteel stel voor \(\forall p \ge 0\)
-||||||||||
-\[
-\left\{ I_{p} (x), K_{p} (x)     \right\}  
-.\]
+indien f continu is op \(\left[ a,b \right]  \) of een eindig aantal discontinuïteiten heeft en in elk punt van \(\left[ a,b \right]  \) de linker- en rechterlimiet bestaan. 
+
+In a bestaat de rechtelimiet in b de linkerlimiet.
 ----------

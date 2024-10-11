@@ -29,6 +29,8 @@ def main():
         sys.exit(1)
 
     input_file = sys.argv[1]
+    # Bepaal de basisdirectory van het inputbestand
+    base_dir = os.path.dirname(os.path.abspath(input_file))
     output_file = os.path.expanduser("~/.local/share/anki-gen/files/cards.txt")
 
     with open(input_file, 'r', encoding='utf-8') as f:
@@ -127,8 +129,8 @@ def main():
                 answer_processed = replace_kader_commands_in_text(answer_processed)
 
                 # Verwerk afbeeldingen in vraag en antwoord
-                question_processed = process_images(question_processed)
-                answer_processed = process_images(answer_processed)
+                question_processed = process_images(question_processed, base_dir)
+                answer_processed = process_images(answer_processed, base_dir)
 
                 # Voeg de kaart toe
                 card = {
@@ -217,12 +219,12 @@ def replace_kader_commands_in_text(text):
         idx = match.start() + len(replacement_text)
     return text
 
-def process_images(text):
-    text = process_incfig_commands(text)
-    text = process_figure_environments(text)
+def process_images(text, base_dir):
+    text = process_incfig_commands(text, base_dir)
+    text = process_figure_environments(text, base_dir)
     return text
 
-def process_figure_environments(text):
+def process_figure_environments(text, base_dir):
     anki_media_folder = os.path.expanduser('~/.local/share/Anki2/Gebruiker 1/collection.media/')
     # Zoek naar \begin{figure} ... \end{figure} blokken
     figure_pattern = re.compile(r'(\\begin\{figure\}.*?\\end\{figure\})', re.DOTALL)
@@ -230,31 +232,39 @@ def process_figure_environments(text):
     for match in matches:
         figure_block = match.group(1)
         # Verwerk eventuele \incfig{...} commando's binnen de figure omgeving
-        figure_block_processed = process_incfig_commands(figure_block)
+        figure_block_processed = process_incfig_commands(figure_block, base_dir)
         # Zoek naar \includegraphics commando in de figure omgeving
         includegraphics_match = re.search(r'\\includegraphics.*?\{(.*?)\}', figure_block_processed)
         if includegraphics_match:
             image_path = includegraphics_match.group(1).strip().strip('"')
+            # Als het een relatieve pad is, converteer het naar absoluut
+            if not os.path.isabs(image_path):
+                image_path = os.path.join(base_dir, image_path)
             # Kopieer de afbeelding naar de Anki media map
-            filename = os.path.basename(image_path)
-            filename = sanitize_filename(filename)
-            destination_path = os.path.join(anki_media_folder, filename)
-            if not os.path.exists(destination_path):
-                try:
-                    shutil.copy(image_path, destination_path)
-                except Exception as e:
-                    print(f"Fout bij kopiëren van afbeelding {image_path}: {e}")
-            # Vervang de figure omgeving door HTML code
-            # Voeg stijl toe om de afbeelding kleiner te maken
-            img_tag = f'<img src="{filename}" style="width:50%;">'  # Pas de breedte aan indien nodig
-            # Vervang de volledige figure omgeving door de img tag
-            text = text.replace(figure_block, img_tag)
+            if os.path.exists(image_path):
+                filename = os.path.basename(image_path)
+                filename = sanitize_filename(filename)
+                destination_path = os.path.join(anki_media_folder, filename)
+                if not os.path.exists(destination_path):
+                    try:
+                        shutil.copy(image_path, destination_path)
+                    except Exception as e:
+                        print(f"Fout bij kopiëren van afbeelding {image_path}: {e}")
+                # Vervang de figure omgeving door HTML code
+                # Voeg stijl toe om de afbeelding kleiner te maken
+                img_tag = f'<img src="{filename}" style="width:50%;">'  # Pas de breedte aan indien nodig
+                # Vervang de volledige figure omgeving door de img tag
+                text = text.replace(figure_block, img_tag)
+            else:
+                print(f"Afbeelding {image_path} niet gevonden.")
+                # Vervang de figure omgeving door een placeholder
+                text = text.replace(figure_block, f'[Afbeelding {image_path} niet gevonden]')
         else:
             # Als er geen afbeelding gevonden is, verwijder dan de figure omgeving
             text = text.replace(figure_block, '')
     return text
 
-def process_incfig_commands(text):
+def process_incfig_commands(text, base_dir):
     # Zorg ervoor dat anki_media_folder beschikbaar is
     anki_media_folder = os.path.expanduser('~/.local/share/Anki2/Gebruiker 1/collection.media/')
     # Zoek naar \incfig{...} commando's
@@ -264,7 +274,7 @@ def process_incfig_commands(text):
         incfig_command = match.group(0)
         image_name = match.group(1).strip()
         # Verwacht dat de afbeelding zich bevindt in './figures/' met extensie '.pdf'
-        images_dir = os.path.join('/home/dyntif/school/current-subject/nota/', 'figures')  # Pas dit pad aan indien nodig
+        images_dir = os.path.join(base_dir, 'figures')
         # Pad naar het pdf-bestand
         pdf_path = os.path.join(images_dir, image_name + '.pdf')
         if os.path.exists(pdf_path):
