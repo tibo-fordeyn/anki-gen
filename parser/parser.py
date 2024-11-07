@@ -84,8 +84,8 @@ def main():
             # Verwerk inline wiskunde, vetgedrukte tekst, lijsten en kader commando's in de titel
             title = replace_inline_math(title)
             title = replace_bold_text(title)
-            title = replace_itemize_enumerate(title)
             title = replace_kader_commands_in_text(title)
+            title = replace_itemize_enumerate(title)
             kader_stack.append((kader_type, title))
         elif cmd_type == 'akq':
             # Verwachten we een vraag?
@@ -100,8 +100,13 @@ def main():
                 expecting = 'answer'
             else:
                 # Lege vraag
-                current_question = None
-                expecting = 'command'
+                if kader_stack:
+                    # Als er een kader is, vervang lege vraag door ';'
+                    current_question = ';'
+                    expecting = 'answer'
+                else:
+                    current_question = None
+                    expecting = 'command'
         elif cmd_type == 'akns':
             # Verwachten we een antwoord?
             if expecting != 'answer':
@@ -120,13 +125,13 @@ def main():
                 # Verwerk inline wiskunde, vetgedrukte tekst, lijsten en kader commando's in vraag en antwoord
                 question_processed = replace_inline_math(current_question)
                 question_processed = replace_bold_text(question_processed)
-                question_processed = replace_itemize_enumerate(question_processed)
                 question_processed = replace_kader_commands_in_text(question_processed)
+                question_processed = replace_itemize_enumerate(question_processed)
 
                 answer_processed = replace_inline_math(answer)
                 answer_processed = replace_bold_text(answer_processed)
-                answer_processed = replace_itemize_enumerate(answer_processed)
                 answer_processed = replace_kader_commands_in_text(answer_processed)
+                answer_processed = replace_itemize_enumerate(answer_processed)
 
                 # Verwerk afbeeldingen in vraag en antwoord
                 question_processed = process_images(question_processed, base_dir)
@@ -182,21 +187,57 @@ def replace_bold_text(text):
     return text
 
 def replace_itemize_enumerate(text):
-    # Vervang \begin{itemize}...\end{itemize} en \begin{enumerate}...\end{enumerate} door HTML-lijsten
-    def replace_list(match):
-        list_type = match.group(1)
-        items_text = match.group(2)
-        # Vervang \item door <li>
-        items = re.split(r'\\item', items_text)
-        items = [item.strip() for item in items if item.strip()]
-        items_html = ''.join(f'<li>{item}</li>' for item in items)
-        if list_type == 'itemize':
-            return f'<ul>{items_html}</ul>'
-        else:
-            return f'<ol>{items_html}</ol>'
-    pattern = re.compile(r'\\begin\{(itemize|enumerate)\}(.*?)\\end\{\1\}', re.DOTALL)
-    text = pattern.sub(replace_list, text)
-    return text
+    # Recursieve functie om geneste lijsten te vervangen
+    def parse_lists(text):
+        # Regex om \begin{itemize|enumerate} te vinden
+        pattern = re.compile(r'\\begin\{(itemize|enumerate)\}')
+        while True:
+            match = pattern.search(text)
+            if not match:
+                break
+            list_type = match.group(1)
+            start = match.start()
+            # Vind het overeenkomende \end{...}
+            end_tag = f'\\end{{{list_type}}}'
+            end = find_matching_end(text, match.end(), end_tag)
+            if end == -1:
+                break  # Geen einde gevonden, breek de lus
+            # Haal de inhoud tussen \begin en \end
+            inner_content = text[match.end():end]
+            # Vervang geneste lijsten in de inhoud
+            inner_content = parse_lists(inner_content)
+            # Vervang \item door <li> tags
+            items = re.split(r'\\item', inner_content)
+            items = [item.strip() for item in items if item.strip()]
+            items_html = ''.join(f'<li>{item}</li>' for item in items)
+            # Bouw de lijst op
+            if list_type == 'itemize':
+                list_html = f'<ul>{items_html}</ul>'
+            else:
+                list_html = f'<ol>{items_html}</ol>'
+            # Vervang de originele tekst met de HTML-lijst
+            text = text[:start] + list_html + text[end+len(end_tag):]
+        return text
+
+    def find_matching_end(text, start_pos, end_tag):
+        # Zoek naar het overeenkomende \end{...} met rekening houden met geneste structuren
+        pos = start_pos
+        depth = 1
+        pattern = re.compile(r'\\begin\{(itemize|enumerate)\}|\\end\{(itemize|enumerate)\}')
+        while pos < len(text):
+            match = pattern.search(text, pos)
+            if not match:
+                return -1  # Geen einde gevonden
+            if match.group(0).startswith('\\begin'):
+                depth += 1
+            elif match.group(0) == end_tag:
+                depth -= 1
+                if depth == 0:
+                    return match.start()
+            pos = match.end()
+        return -1  # Geen einde gevonden
+
+    return parse_lists(text)
 
 def replace_kader_commands_in_text(text):
     # Maak een regex pattern om alle kader commando's te vinden
@@ -267,7 +308,7 @@ def process_figure_environments(text, base_dir):
 def process_incfig_commands(text, base_dir):
     # Zorg ervoor dat anki_media_folder beschikbaar is
     anki_media_folder = os.path.expanduser('~/.local/share/Anki2/Gebruiker 1/collection.media/')
-    # Zoek naar \incfig{...} commando's
+    # Zoek naar \incfig\{...\} commando's
     incfig_pattern = re.compile(r'\\incfig\{([^}]+)\}')
     matches = incfig_pattern.finditer(text)
     for match in matches:

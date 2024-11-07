@@ -1,195 +1,58 @@
-Definitie; Het interpolatiecriterium
-Kies \(N\) punten \(x_{j} \in \left[ a,b \right]   \)  en eis dat \(g(x_{j}  )= f(x_{j}  )  , j =,1,\ldots ,N \)
+Definitie; Claude Shannon
+Hoeveelheid informatie in symbool \(a_{i}  \)
 ||||||||||
-Met andere woorden er wordt in essentie enkel geëist dat de doelfunctie in enkele punten exact samenvalt. Dan wordt een veelterm bepaald.
-	
-lineair stelsel;
 \[
-\sum_{i=1}^{n} c_{i} g_{i} (x_{j}  )= f(x_{j}  )     , j=1,2,\ldots ,N
-.\]  
+	H\left(a_{i}  \right) = \log{\left(\frac{1}{p_{i}  }\right)  } \cdot  \frac{ \text{bit} _{i}}{\text{symbool } a_{i}    }    
+	.\]
+----------
+Stelling; Gemiddelde hoeveelheid informatie in een alfabet A
+In bit per symbool;
+||||||||||
 \[
-\begin{pmatrix}
-	g_{1} (x_{1}  )   &g_{2} (x_{1}  )    & \ldots  & g_{N} (x_{1}  )  \\
-	g_{1} (x_{2}  )   & g_{2} (x_{2}  )   & \ldots  & g_{N} (x_{2}  )  \\
-	\vdots  & \vdots  & \vdots  & \vdots  \\
-	g_{1} (x_{N}  )   & g_{2} (x_{N}  )   & \ldots  & g_{n} (x_{N}  )  
-\end{pmatrix} \begin{pmatrix}
-	c_{1}    \\
-	c_{2}    \\
-	\vdots   \\
-	c_{N}    
-\end{pmatrix} = \begin{pmatrix}
-	f(x_{1}  )   \\
-	f(x_{2}  )   \\
-	\vdots   \\
-	f(x_{N}  )   
-\end{pmatrix} 
+H(A)= \sum_{i=1}^{n} p_{i} \log{\left(\frac{1}{p_{i}  }\right)  }= - \sum_{i=1}^{n} p_{i} \log{(p_{i}  ) }        
+.\]
+----------
+Stelling; Gemiddelde hoeveelheid informatie van een boodschap met lengte l
+In bit per boodschap, boodschap lengte l;
+||||||||||
+\[
+H\left(M\right)= - l \sum_{i=1}^{n} p_{i} \log{\left(p_{i}  \right)}    
+.\]
+----------
+Voorbeeld; Binair alfabet
+<ul><li>Symbool 1; student geslaagd \(p=0.8\)</li><li>Symbool 0; student niet geslaag \(1-p= 0.2\)</li></ul> 
+	Hoeveel informatie zal er gemiddeld zijn als de student zijn resultaat meldt?
+||||||||||
+\[
+H(M)= - \left(0.8 \cdot  \log{\left(0.8\right)} + 0.2\cdot  \log{\left(9.2\right)} \right)   
+.\]   
+\[
+= \ldots 
 .\]  
-kwaliteit hangt af van keuzes interpolatiepunten, veelterminterpolatie geeft grote fouten.
 
-<img src="screenshot_2024-10-08_15-40-06_20241008154014.png" style="width:50%;">
+<img src="screenshot_2024-11-07_15-07-41_20241107151025_20241107151027_20241107151028_20241107151029_20241107151030.png" style="width:50%;">
+die curve is dus de hoeveelheid informatie van een binaire bron en is een zeer belangrijke curve.
 ----------
-Definitie; Orthogonaliteit van functies
-Twee functies \(f,g\in \mathbb{R} \) zijn orthogonaal op \(\left[ a,b \right]  \) als
-||||||||||
-\[
-\int_{a}^{b} f(x)g(x)dx    
-.\]
-----------
-Definitie; Orthogonaal tov gewichtsfunctie
-Twee reele functies \(f,g\) zijn orthogonaal op \(\left[ a,b \right]  \) tov gewichtsfunctie w, \(w(x)>0 \) voor \(x\in (a,b) \)
-||||||||||
-\[
-\int_{a}^{b} w(x) f(x)g(x)dx=0    
-.\]
-----------
-Voorbeeld; benaderen
-We gaan een functie f benaderen op een interval \(\left[ a,b \right]  \) door een lineaire combinatie van basisfuncties
-	\[
-	f(x)\approx  \sum_{i=1}^{N} c_{i} g_{i} (x)     
-	.\]  
-	\[
-	\begin{cases}
-		g_{1}   \\
-		g_{2}   \\
-		\vdots \\
-	\end{cases} 
-	.\]  
-	We gaan een fout karakteriseren met een kleinste kwadratenfunctie met een gewicht \(w(x) \) 
-	\[
-	\int_{a}^{b} w(x)\left(f(x)-g(x)   \right) ^2 dx    
-	.\]  
-	dit willen we minimaliseren
-||||||||||
-er zijn voorwaarden mogelijk voor een perfecte match. Stel dat de basisfuncties <b>orthogonaal zijn tov elkaar op \(\left[ a,b \right]  \) tov \(w(x) \). </b>  
-In dat geval is de uitdrukking voor optimale coefficienten eenvoudig (de te minimaliseren formule.) 
-\[
-c_{i} = \frac{\int_{a}^{b} w(x)f(x)g_{i} (x)dx }{  \int_{a}^{b} w(x) \left(g_{i} (x)  \right) ^2 dx          }
-.\]
-----------
-Voorbeeld; benaderen
-stel \(w(x)=1 \) en \(\left[ a,b \right] = \left[ -\pi ,\pi  \right]   \)  we krijgen trigonometrische orthogonaliteit
-||||||||||
-\[
-\int_{-\pi }^{\pi } \cos{\big( kx \big)} \cos{\big( lx \big)} dx= \begin{cases}
-	0, k\neq l \\
-	\pi ,k=l\neq 0 \\
-	2\pi ,k=l=0
-\end{cases}     
-.\]  
-\[
-\int_{-\pi }^{\pi } \cos{\big( kx \big)} \sin{\big( lx \big)} dx=0    
-.\]  
-\[
-\int_{-\pi }^{\pi } \sin{\big( kx \big)} \sin{\big( lx \big)} = \begin{cases}
-	0,k\neq l,k=l=0 \\
-	\pi ,k=l\neq 0 \\
-\end{cases}     
-.\]
-----------
-Definitie; Trigonometrische veelterm
-Gedefinieerd als
-||||||||||
-\[
-g(x)= a_{0} +\sum_{k=1}^{n} \left(a_{k} \cos{\big( kx \big)} +b_{k} \sin{\big( kx \big)}     \right)     
-.\]
-----------
-Voorbeeld; Met afgeleiden
-\[
-	J_{0} (\beta _{0} x ),J_{0} (\beta _{1} x ),\ldots     
-	.\]
-||||||||||
-<img src="besselafgeleid.png" style="width:50%;">
-----------
-Definitie; Kleinste kwadraten trigonometrische veelterm
-\[
-	g(x)=a_{0} +\sum_{k=1}^{n} \left(a_{k} \cos{\big( kx \big)}  +b_{k} \sin{\big( kx \big)}    \right)  
-	.\]
-||||||||||
-\[
-	a_{0} = \frac{1}{2\pi }\int_{-\pi }^{\pi } f(x)dx    
-	.\]  
-	\[
-	a_{k} = \frac{1}{\pi }\int_{-\pi }^{\pi } f(x)\cos{\big( kx \big)} \text{dx}  ,k=1,\ldots ,n     
-	.\]  
-	\[
-	b_{k} = \frac{1}{\pi }\int_{-\pi }^{\pi } f(x)\sin{\big( kx \big)} \text{dx}  ,k=1,\ldots ,n     
-	.\]  
-Verduidelijking:  of ook {
-	\[
-	g(x)= \frac{a_{0}}{2}+\sum_{k=1}^{n} \left(a_{k} \cos{\big( kx \big)} +b_{k} \sin{\big( kx \big)}     \right)     
-	.\]  
-	met
-	\[
-	a_{k} = \frac{1}{\pi }\int_{-\pi }^{\pi } f(x)\cos{\big( kx \big)} \text{dx}  ,k=0,\ldots ,n     
-	.\]  
-}
-----------
-Definitie; Een fourierreeks
+Stelling; Informatiedebiet \(H_{t} (A)  \) en transmissiedebiet \(r_{s} (A)  \) bron
 gedefinieerd als
 ||||||||||
 \[
-f(x)\approx  \frac{a_{0}}{2}+ \sum_{k=1}^{\infty} \left(a_{k} \cos{\big( kx \big)} +b_{k} \sin{\big( kx \big)}     \right)     
-.\]
+H_{t} (A)= \frac{1}{t}\cdot  H(A)   \text{bit} _{i} \text{/s} = r_{s} (A) \cdot  H(A) \text{bit} _{i} \text{/s}           
+.\]  
+Dus de hoeveelheid informatiedebiet van onze bron is de hoeveelheid informatie van de bron maal het transmissiedebiet in symbolen per seconde.
 ----------
-Eigenschap; Integraal over periodieke functie
-\(f(x) \) een periodieke functie met periode T en f integreerbaar;
+Stelling; Waarschijnlijkheidsredundantie van de bron
+Eigenschap van de bron, ideaal willen we nul hebben. Dan hebben we 100% waarschijnlijkheidsredundantie.
+	\(R_{w} (A)  \) gedefinieerd als;
 ||||||||||
 \[
-\int_{0}^{T} f(x)\text{dx}  =\int_{\alpha }^{\alpha +T} f(x)\text{dx}        
-.\]
-----------
-Definitie; Fourierreeks van functie met periode T
-\(f(x+T)=f(x),\forall x  \) 	
-\[
-f(x)\approx  \frac{a_{0}}{2} + \sum_{k=1}^{\infty} \left(a_{k} \cos{\big( \frac{2\pi kx}{T}  \big)} + b_{k} \sin{\big( \frac{2\pi kx}{T}  \big)}     \right)     
-.\]
-||||||||||
-met
-	\[
-	a_{k} = \frac{2}{T}\int_{0}^{T} f(x)\cos{\big( \frac{2\pi kx}{T}  \big)} \text{dx}       
-	.\]  
-	\[
-	b_{k} =\frac{2}{T}\int_{0}^{T} f(x)\sin{\big( \frac{2\pi kx}{T}  \big)} \text{dx}       
-	.\]  
-Dit volgt uit de substitutie \(\phi (y)=f(x)  , x=\frac{yT}{2\pi }\).
-----------
-Voorbeeld; Beschouw
-\(f(x) \) periodieke uitbreiding van 
-	\[
-	g(x)=\begin{cases}
-		x, 0\le x <1 \\
-		1,1\le x<3 \\
-		4-x,3 \le x \le 4
-	\end{cases}  
+	R_{w} (A)= 1 - \frac{H(A) }{\text{max} H(A)  }   
 	.\]
-||||||||||
-Dit is een even functie en heeft periode \(T=4\). Ziet er als volgt uit;
-	
-<img src="screenshot_2024-10-11_17-42-27_20241011174246_20241011174247_20241011174252_20241011174253_20241011174254_20241011174255.png" style="width:50%;">
-
-Het is een even functie, fourierreeks herleidt tot cosinusreeks
-\[
-f(x)\approx  \frac{a_{0}  }{2} + \sum_{k=1}^{\infty} a_{k} \cos{\big( \frac{2\pi kx}{T}  \big)}      
-.\]  
-\[
-\iff \frac{a_{0}  }{2} + \sum_{k=1}^{\infty} a_{k} \cos{\big( \frac{\pi kx}{2}  \big)}  = \sum_{k=0}^{\infty} f_{k } (x)      
-.\]  
-\[
-a_{0} = \frac{1}{2}\int_{0}^{4} f(x)\text{dx}  =\frac{3}{2}    
-.\]  
-<b>Dit is de gemiddelde waarde.</b> 
-\[
-a_{k} = \frac{2}{T}\int_{0}^{T} f(x)\cos{\big( \frac{2\pi kx}{T}  \big)} \text{dx}  =\frac{4}{T}\int_{0}^{\frac{T}{2}} f(x)\cos{\big( \frac{2\pi kx}{T}  \big)} \text{dx}           
-.\]  
-\[
-\iff  \int_{0}^{1} x\cos{\big( \frac{\pi kx}{2}  \big)} \text{dx}  + \int_{1}^{2} \cos{\big( \frac{\pi kx}{2}  \big)} \text{dx}        
-.\]
 ----------
-Definitie; Stuksgewijs continue functie
-\(f(x) \) is een stuksgewijze continue functie op \(\left[ a,b \right]  \)
+Verduidelijking; Verschillen tussen \(\text{bit} _{i}   \) en \(\text{bit}  \)
+;
 ||||||||||
-indien f continu is op \(\left[ a,b \right]  \) of een eindig aantal discontinuïteiten heeft en in elk punt van \(\left[ a,b \right]  \) de linker- en rechterlimiet bestaan. 
-
-In a bestaat de rechtelimiet in b de linkerlimiet.
+<ul><li>\(\text{bit} _{i}   \) is een binary unit 
+		<ul><li>Eenheid van hoeveelheden informatie</li><li>Betekenis in informatietheorie</li><li>Enkel voor 'kenners'</li><li>Het subscript wijst uitdrukkelijk op betekenis 'hoeveelheid van informatie' voor deze cursus</li></ul></li><li>bit is een binary digit
+		<ul><li>Eenheid van aantal binaire symbolen</li><li>Zegt <b>niets</b> over de hoeveelheid informatie!</li></ul></li></ul>
 ----------
